@@ -128,19 +128,21 @@ class WallFollow(Node):
                 self.turtlebot_moving = False
                 self.get_logger().info('Pivoting')
         #if we're close enough to want to dodge, turn left
-        elif front_lidar_min < LIDAR_AVOID_DISTANCE:
+        elif tight_right_min < LIDAR_AVOID_DISTANCE:
                 self.cmd.linear.x = 0.07 
                 self.cmd.angular.z = 0.3
                 self.publisher_.publish(self.cmd)
+                self.get_logger().info('Tight Right = %f' % tight_right_min)
                 self.get_logger().info('Turning Left')
                 self.turtlebot_moving = True
         # else there is no obstacle in front, so try to wallhug
         else:
             # if we are too close on the right, very slight left
-            if right_lidar_min < LIDAR_AVOID_DISTANCE / 2:
+            if tight_right_min < LIDAR_AVOID_DISTANCE / 2:
                 self.cmd.linear.x = 0.3
                 self.cmd.angular.z = 0.3
                 self.publisher_.publish(self.cmd)
+                self.get_logger().info('Tight Right = %f' % tight_right_min)
                 self.get_logger().info('Slight Left')
                 self.turtlebot_moving = True
                 self.wallhug = True
@@ -153,10 +155,11 @@ class WallFollow(Node):
             #     self.turtlebot_moving = True
             #     self.wallhug = True
             #if we're too far left, slight right
-            elif right_lidar_min < LIDAR_AVOID_DISTANCE * 1.5:
+            elif tight_right_min < LIDAR_AVOID_DISTANCE * 1.5:
                 self.cmd.linear.x = 0.3
                 self.cmd.angular.z = -0.3
                 self.publisher_.publish(self.cmd)
+                self.get_logger().info('Tight Right = %f' % tight_right_min)
                 self.get_logger().info('Slight Right')
                 self.turtlebot_moving = True
                 self.wallhug = True
