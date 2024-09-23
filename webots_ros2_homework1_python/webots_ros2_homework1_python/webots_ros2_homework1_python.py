@@ -85,7 +85,8 @@ class WallFollow(Node):
         # similarly for twist message if you need
         self.pose_saved=position
         if self.positionIt % 10 == 0:
-            self.positionLog.append(posx, posy)
+            self.positionLog.append(posx)
+            self.positionLog.append(posy)
             self.positionIt += 1
         
         #Example of how to identify a stall..need better tuned position deltas; wheels spin and example fast
