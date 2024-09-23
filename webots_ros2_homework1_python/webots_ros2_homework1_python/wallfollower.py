@@ -177,7 +177,7 @@ class WallFollow(Node):
             #door
             else:
                 self.cmd.linear.x = 0.05
-                self.cmd.angular.z = -0.3
+                self.cmd.angular.z = -0.2
                 self.publisher_.publish(self.cmd)
                 self.get_logger().info('Sharp Right, trying to go through door')
                 self.turtlebot_moving = True
