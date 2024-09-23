@@ -132,7 +132,6 @@ class WallFollow(Node):
                 self.cmd.linear.x = 0.07 
                 self.cmd.angular.z = 0.3
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Tight Right = %f' % tight_right_min)
                 self.get_logger().info('Turning Left')
                 self.turtlebot_moving = True
         # else there is no obstacle in front, so try to wallhug
@@ -142,7 +141,6 @@ class WallFollow(Node):
                 self.cmd.linear.x = 0.3
                 self.cmd.angular.z = 0.3
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Tight Right = %f' % tight_right_min)
                 self.get_logger().info('Slight Left')
                 self.turtlebot_moving = True
                 self.wallhug = True
@@ -159,7 +157,6 @@ class WallFollow(Node):
                 self.cmd.linear.x = 0.3
                 self.cmd.angular.z = -0.3
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Tight Right = %f' % tight_right_min)
                 self.get_logger().info('Slight Right')
                 self.turtlebot_moving = True
                 self.wallhug = True
@@ -180,7 +177,8 @@ class WallFollow(Node):
                 
             
         self.get_logger().info('%s' % self.command)
-        self.get_logger().info('Distance of the obstacle : %f' % front_lidar_min)
+        self.get_logger().info('Tight Right = %f' % tight_right_min)
+        self.get_logger().info('Front = %f' % front_lidar_min)
         self.get_logger().info('I receive: "%s"' %
                                str(self.odom_data))
         if self.stall == True:
