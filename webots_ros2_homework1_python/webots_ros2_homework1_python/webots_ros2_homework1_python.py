@@ -128,7 +128,7 @@ class WallFollow(Node):
                 self.turtlebot_moving = False
                 self.get_logger().info('Pivoting')
         elif self.wallhug == False:
-            if front_lidar_min > LIDAR_AVOID_DISTANCE:
+            if front_lidar_min > 1.5:
                 self.cmd.linear.x = 0.3
                 self.cmd.angular.z = 0.00
                 self.publisher_.publish(self.cmd)
