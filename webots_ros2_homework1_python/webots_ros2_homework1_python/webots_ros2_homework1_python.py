@@ -141,6 +141,13 @@ class WallFollow(Node):
                 self.publisher_.publish(self.cmd)
                 self.get_logger().info('Setup Left')
                 self.turtlebot_moving = True
+            else:
+                self.cmd.linear.x = 0.15
+                self.cmd.angular.z = 0.15
+                self.publisher_.publish(self.cmd)
+                self.get_logger().info('Transition to hug')
+                self.turtlebot_moving = True
+                self.wallhug = True
         # else wallhug is true
         else:
             # if we are too close on the right, very slight left
@@ -179,6 +186,7 @@ class WallFollow(Node):
                 
             
         self.get_logger().info('%s' % self.command)
+        self.get_logger().info('Wallhug = %r' % self.wallhug)
         self.get_logger().info('Tight Right = %f' % tight_right_min)
         self.get_logger().info('Front = %f' % front_lidar_min)
         self.get_logger().info('I receive: "%s"' %
