@@ -124,7 +124,7 @@ class WallFollow(Node):
                 self.turtlebot_moving = False
                 self.get_logger().info('Pivoting')
         #if we're close enough to want to dodge, turn left
-        elif front_lidar_min < LIDAR_AVOID_DISTANCE:
+        elif front_lidar_min < 1.5:
                 self.cmd.linear.x = 0.07 
                 self.cmd.angular.z = 0.3
                 self.publisher_.publish(self.cmd)
