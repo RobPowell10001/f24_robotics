@@ -13,23 +13,20 @@ import math
 
 
 LINEAR_VEL = 0.22
-STOP_DISTANCE = 0.1
+STOP_DISTANCE = 0.2
 LIDAR_ERROR = 0.05
-LIDAR_AVOID_DISTANCE = 0.35
+LIDAR_AVOID_DISTANCE = 0.7
 SAFE_STOP_DISTANCE = STOP_DISTANCE + LIDAR_ERROR
-RIGHT_SIDE_INDEX = 330
+RIGHT_SIDE_INDEX = 270
 RIGHT_FRONT_INDEX = 210
 LEFT_FRONT_INDEX=150
-LEFT_SIDE_INDEX=30
-TIGHT_RIGHT_TOP_INDEX = 240
-TIGHT_RIGHT_BOT_INDEX = 300
+LEFT_SIDE_INDEX=90
 
-
-class WallFollow(Node):
+class RandomWalk(Node):
 
     def __init__(self):
         # Initialize the publisher
-        super().__init__('wall_following_node')
+        super().__init__('random_walk_node')
         self.scan_cleaned = []
         self.stall = False
         self.turtlebot_moving = False
@@ -50,10 +47,8 @@ class WallFollow(Node):
         self.pose_saved=''
         self.cmd = Twist()
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.wallhug = False
-        self.command = "none"
 
-    #tracks the scanner data
+
     def listener_callback1(self, msg1):
         #self.get_logger().info('scan: "%s"' % msg1.ranges)
         scan = msg1.ranges
@@ -69,8 +64,6 @@ class WallFollow(Node):
             else:
                 self.scan_cleaned.append(reading)
 
-
-    #tracks the odometry data
     def listener_callback2(self, msg2):
         position = msg2.pose.pose.position
         orientation = msg2.pose.pose.orientation
@@ -90,9 +83,7 @@ class WallFollow(Node):
            
         return None
         
-    #movement control, done on a timer
     def timer_callback(self):
-        #guard clause for if we dont get a scan
         if (len(self.scan_cleaned)==0):
             self.turtlebot_moving = False
             return
@@ -101,18 +92,14 @@ class WallFollow(Node):
         #right_lidar_samples = self.scan_cleaned[RIGHT_FRONT_INDEX:RIGHT_SIDE_INDEX]
         #front_lidar_samples = self.scan_cleaned[LEFT_FRONT_INDEX:RIGHT_FRONT_INDEX]
         
-        #get the closest thing on the left, right, and front
         left_lidar_min = min(self.scan_cleaned[LEFT_SIDE_INDEX:LEFT_FRONT_INDEX])
         right_lidar_min = min(self.scan_cleaned[RIGHT_FRONT_INDEX:RIGHT_SIDE_INDEX])
         front_lidar_min = min(self.scan_cleaned[LEFT_FRONT_INDEX:RIGHT_FRONT_INDEX])
-        tight_right_min = min(self.scan_cleaned[TIGHT_RIGHT_TOP_INDEX:TIGHT_RIGHT_BOT_INDEX])
 
         #self.get_logger().info('left scan slice: "%s"'%  min(left_lidar_samples))
         #self.get_logger().info('front scan slice: "%s"'%  min(front_lidar_samples))
         #self.get_logger().info('right scan slice: "%s"'%  min(right_lidar_samples))
 
-
-        #if we're too close, just full stop, if stopped turn left
         if front_lidar_min < SAFE_STOP_DISTANCE:
             if self.turtlebot_moving == True:
                 self.cmd.linear.x = 0.0 
@@ -121,74 +108,23 @@ class WallFollow(Node):
                 self.turtlebot_moving = False
                 self.get_logger().info('Stopping')
                 return
-            if self.turtlebot_moving == False:
-                self.cmd.linear.x = 0.0
-                self.cmd.angular.z = 0.3
+        elif front_lidar_min < LIDAR_AVOID_DISTANCE:
+                self.cmd.linear.x = 0.07 
+                if (right_lidar_min > left_lidar_min):
+                   self.cmd.angular.z = -0.3
+                else:
+                   self.cmd.angular.z = 0.3
                 self.publisher_.publish(self.cmd)
-                self.turtlebot_moving = False
-                self.get_logger().info('Pivoting')
-        elif self.wallhug == False:
-            if front_lidar_min > 1.5:
-                self.cmd.linear.x = 0.3
-                self.cmd.angular.z = 0.00
-                self.publisher_.publish(self.cmd)
-                self.get_logger().info('Straight No Wall')
+                self.get_logger().info('Turning')
                 self.turtlebot_moving = True
-            #if we're close enough to want to dodge, turn left
-            elif tight_right_min > LIDAR_AVOID_DISTANCE * 1.5:
-                self.cmd.linear.x = 0.3
-                self.cmd.angular.z = 0.3
-                self.publisher_.publish(self.cmd)
-                self.get_logger().info('Setup Left')
-                self.turtlebot_moving = True
-            else:
-                self.cmd.linear.x = 0.15
-                self.cmd.angular.z = 0.15
-                self.publisher_.publish(self.cmd)
-                self.get_logger().info('Transition to hug')
-                self.turtlebot_moving = True
-                self.wallhug = True
-        # else wallhug is true
         else:
-            # if we are too close on the right, very slight left
-            if tight_right_min < LIDAR_AVOID_DISTANCE / 2:
-                self.cmd.linear.x = 0.3
-                self.cmd.angular.z = 0.3
-                self.publisher_.publish(self.cmd)
-                self.get_logger().info('Slight Left')
-                self.turtlebot_moving = True
-                self.wallhug = True
-            #if we're in a good spot, go straight
-            # elif right_lidar_min < LIDAR_AVOID_DISTANCE:
-            #     self.cmd.linear.x = 0.3
-            #     self.cmd.angular.z = 0.00
-            #     self.publisher_.publish(self.cmd)
-            #     self.get_logger().info('Straight Wallhug')
-            #     self.turtlebot_moving = True
-            #     self.wallhug = True
-            #if we're too far left, slight right
-            elif tight_right_min < LIDAR_AVOID_DISTANCE * 1.5:
-                self.cmd.linear.x = 0.3
-                self.cmd.angular.z = -0.3
-                self.publisher_.publish(self.cmd)
-                self.get_logger().info('Slight Right')
-                self.turtlebot_moving = True
-                self.wallhug = True
-            #door
-            else:
-                self.cmd.linear.x = 0.3
-                self.cmd.angular.z = -0.7
-                self.publisher_.publish(self.cmd)
-                self.get_logger().info('Sharp Right, trying to go through door')
-                self.turtlebot_moving = True
-                self.wallhug = True
-                
-                
+            self.cmd.linear.x = 0.3
+            self.cmd.linear.z = 0.0
+            self.publisher_.publish(self.cmd)
+            self.turtlebot_moving = True
             
-        self.get_logger().info('%s' % self.command)
-        self.get_logger().info('Wallhug = %r' % self.wallhug)
-        self.get_logger().info('Tight Right = %f' % tight_right_min)
-        self.get_logger().info('Front = %f' % front_lidar_min)
+
+        self.get_logger().info('Distance of the obstacle : %f' % front_lidar_min)
         self.get_logger().info('I receive: "%s"' %
                                str(self.odom_data))
         if self.stall == True:
@@ -203,11 +139,11 @@ def main(args=None):
     # initialize the ROS communication
     rclpy.init(args=args)
     # declare the node constructor
-    wall_following_node = WallFollow()
+    random_walk_node = RandomWalk()
     # pause the program execution, waits for a request to kill the node (ctrl+c)
-    rclpy.spin(wall_following_node)
+    rclpy.spin(random_walk_node)
     # Explicity destroy the node
-    wall_following_node.destroy_node()
+    random_walk_node.destroy_node()
     # shutdown the ROS communication
     rclpy.shutdown()
 
