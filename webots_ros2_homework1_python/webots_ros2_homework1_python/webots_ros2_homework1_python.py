@@ -21,6 +21,9 @@ RIGHT_SIDE_INDEX = 330
 RIGHT_FRONT_INDEX = 210
 LEFT_FRONT_INDEX=150
 LEFT_SIDE_INDEX=30
+TIGHT_RIGHT_TOP_INDEX = 240
+TIGHT_RIGHT_BOT_INDEX = 300
+
 
 class WallFollow(Node):
 
@@ -102,6 +105,7 @@ class WallFollow(Node):
         left_lidar_min = min(self.scan_cleaned[LEFT_SIDE_INDEX:LEFT_FRONT_INDEX])
         right_lidar_min = min(self.scan_cleaned[RIGHT_FRONT_INDEX:RIGHT_SIDE_INDEX])
         front_lidar_min = min(self.scan_cleaned[LEFT_FRONT_INDEX:RIGHT_FRONT_INDEX])
+        tight_right_min = min(self.scan_cleaned[TIGHT_RIGHT_TOP_INDEX:TIGHT_RIGHT_BOT_INDEX])
 
         #self.get_logger().info('left scan slice: "%s"'%  min(left_lidar_samples))
         #self.get_logger().info('front scan slice: "%s"'%  min(front_lidar_samples))
@@ -141,13 +145,13 @@ class WallFollow(Node):
                 self.turtlebot_moving = True
                 self.wallhug = True
             #if we're in a good spot, go straight
-            elif right_lidar_min < LIDAR_AVOID_DISTANCE:
-                self.cmd.linear.x = 0.3
-                self.cmd.angular.z = 0.00
-                self.publisher_.publish(self.cmd)
-                self.get_logger().info('Straight Wallhug')
-                self.turtlebot_moving = True
-                self.wallhug = True
+            # elif right_lidar_min < LIDAR_AVOID_DISTANCE:
+            #     self.cmd.linear.x = 0.3
+            #     self.cmd.angular.z = 0.00
+            #     self.publisher_.publish(self.cmd)
+            #     self.get_logger().info('Straight Wallhug')
+            #     self.turtlebot_moving = True
+            #     self.wallhug = True
             #if we're too far left, slight right
             elif right_lidar_min < LIDAR_AVOID_DISTANCE * 1.5:
                 self.cmd.linear.x = 0.3
