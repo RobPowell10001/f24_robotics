@@ -91,7 +91,7 @@ class WallFollow(Node):
         self.positionLog.append(str(posx))
         self.positionLog.append(str(posy))
         # self.get_logger().info("position log is: " + " ".join(self.positionLog))
-
+        self.get_logger().info(len(self.positionLog))
         if len(self.positionLog) > 5000:
             diffX = math.fabs(float(self.positionLog[-5000]) - posx)
             diffY = math.fabs(float(self.positionLog[-4999]) - posy)
