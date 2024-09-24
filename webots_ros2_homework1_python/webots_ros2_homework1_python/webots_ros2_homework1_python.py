@@ -92,9 +92,9 @@ class WallFollow(Node):
         self.positionLog.append(str(posy))
         # self.get_logger().info("position log is: " + " ".join(self.positionLog))
 
-        if len(self.positionLog) > 6:
-            diffX = math.fabs(float(self.positionLog[-6]) - posx)
-            diffY = math.fabs(float(self.positionLog[-5]) - posy)
+        if len(self.positionLog) > 10:
+            diffX = math.fabs(float(self.positionLog[-10]) - posx)
+            diffY = math.fabs(float(self.positionLog[-9]) - posy)
 
             # self.get_logger().info("x and y difs are %.3f and %.3f" % (diffX, diffY))
             if diffX < 0.03 and diffY < 0.03 and self.unstuck == 0:
