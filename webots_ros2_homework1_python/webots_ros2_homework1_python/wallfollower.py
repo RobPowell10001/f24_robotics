@@ -23,6 +23,7 @@ LEFT_FRONT_INDEX=150
 LEFT_SIDE_INDEX=30
 TIGHT_RIGHT_TOP_INDEX = 240
 TIGHT_RIGHT_BOT_INDEX = 300
+SHARP_TURN_LIMIT = 10
 
 
 class WallFollow(Node):
@@ -52,6 +53,11 @@ class WallFollow(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.wallhug = False
         self.command = "none"
+        self.prevcommand = ""
+        self.positionLog = []
+        self.positionIt = 0
+        self.sameActionCounter = 0
+        self.backwardstimex_x = 0
 
     #tracks the scanner data
     def listener_callback1(self, msg1):
@@ -79,6 +85,10 @@ class WallFollow(Node):
         self.get_logger().info('self position: {},{},{}'.format(posx,posy,posz));
         # similarly for twist message if you need
         self.pose_saved=position
+        if self.positionIt % 10 == 0:
+            self.positionLog.append(posx)
+            self.positionLog.append(posy)
+            self.positionIt += 1
         
         #Example of how to identify a stall..need better tuned position deltas; wheels spin and example fast
         #diffX = math.fabs(self.pose_saved.x- position.x)
@@ -96,6 +106,8 @@ class WallFollow(Node):
         if (len(self.scan_cleaned)==0):
             self.turtlebot_moving = False
             return
+        # before we make a command, remember🎶
+        self.prevcommand = self.command
     	    
         #left_lidar_samples = self.scan_cleaned[LEFT_SIDE_INDEX:LEFT_FRONT_INDEX]
         #right_lidar_samples = self.scan_cleaned[RIGHT_FRONT_INDEX:RIGHT_SIDE_INDEX]
@@ -111,41 +123,66 @@ class WallFollow(Node):
         #self.get_logger().info('front scan slice: "%s"'%  min(front_lidar_samples))
         #self.get_logger().info('right scan slice: "%s"'%  min(right_lidar_samples))
 
-
+        if self.sameActionCounter >= 30 and self.wallhug == True:
+            self.wallhug = False
+        if self.sameActionCounter >= 30 and self.wallhug == False:
+            self.backwardstimex_x = 10
         #if we're too close, just full stop, if stopped turn left
-        if front_lidar_min < SAFE_STOP_DISTANCE:
+        if self.backwardstimex_x > 5:
+            self.cmd.linear.x = -0.3
+            self.cmd.angular.z = 0.00
+            self.publisher_.publish(self.cmd)
+            self.command = 'Backwards!'
+            self.get_logger().info("%s" % self.command)
+            self.turtlebot_moving = True
+            self.backwardstimex_x -= 1
+        elif self.backwardstimex_x > 0:
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = 0.3
+            self.publisher_.publish(self.cmd)
+            self.command = 'Backward Pivot!'
+            self.get_logger().info("%s" % self.command)
+            self.turtlebot_moving = True
+            self.backwardstimex_x -= 1
+        elif front_lidar_min < SAFE_STOP_DISTANCE:
             if self.turtlebot_moving == True:
                 self.cmd.linear.x = 0.0 
                 self.cmd.angular.z = 0.0 
                 self.publisher_.publish(self.cmd)
                 self.turtlebot_moving = False
-                self.get_logger().info('Stopping')
+                self.command = 'Stopping'
+                self.get_logger().info("%s" % self.command)
                 return
             if self.turtlebot_moving == False:
                 self.cmd.linear.x = 0.0
                 self.cmd.angular.z = 0.3
                 self.publisher_.publish(self.cmd)
                 self.turtlebot_moving = False
-                self.get_logger().info('Pivoting')
+                self.command = 'Pivoting'
+                self.get_logger().info("%s" % self.command)
+
         elif self.wallhug == False:
-            if front_lidar_min > 1.5:
+            if front_lidar_min > 1:
                 self.cmd.linear.x = 0.3
                 self.cmd.angular.z = 0.00
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Straight No Wall')
+                self.command = 'Straight No Wall'
+                self.get_logger().info("%s" % self.command)
                 self.turtlebot_moving = True
             #if we're close enough to want to dodge, turn left
             elif tight_right_min > LIDAR_AVOID_DISTANCE * 1.5:
                 self.cmd.linear.x = 0.15
                 self.cmd.angular.z = 0.15
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Setup Left')
+                self.command = 'Setup Left'
+                self.get_logger().info("%s" % self.command)
                 self.turtlebot_moving = True
             else:
                 self.cmd.linear.x = 0.15
                 self.cmd.angular.z = 0.15
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Transition to hug')
+                self.command = 'Transition to hug'
+                self.get_logger().info("%s" % self.command)
                 self.turtlebot_moving = True
                 self.wallhug = True
         # else wallhug is true
@@ -155,7 +192,8 @@ class WallFollow(Node):
                 self.cmd.linear.x = 0.15
                 self.cmd.angular.z = 0.15
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Slight Left')
+                self.command = 'Setup Left'
+                self.get_logger().info("%s" % self.command)
                 self.turtlebot_moving = True
                 self.wallhug = True
             #if we're in a good spot, go straight
@@ -171,21 +209,27 @@ class WallFollow(Node):
                 self.cmd.linear.x = 0.15
                 self.cmd.angular.z = -0.15
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Slight Right')
+                self.command = 'Setup Left'
+                self.get_logger().info("%s" % self.command)
                 self.turtlebot_moving = True
                 self.wallhug = True
             #door
             else:
                 self.cmd.linear.x = 0.05
-                self.cmd.angular.z = -0.2
+                self.cmd.angular.z = 0.2
                 self.publisher_.publish(self.cmd)
-                self.get_logger().info('Sharp Right, trying to go through door')
+                self.command = 'Sharp Right, trying to go through door'
+                self.get_logger().info("%s" % self.command)
                 self.turtlebot_moving = True
                 self.wallhug = True
                 
-                
-            
-        self.get_logger().info('%s' % self.command)
+        if self.command == self.prevcommand:
+            self.sameActionCounter += 1
+        else:
+            self.sameActionCounter = 0      
+        
+        # self.get_logger().info('%s' % self.command)
+        self.get_logger().info('Repeats = %f' % self.sameActionCounter)
         self.get_logger().info('Wallhug = %r' % self.wallhug)
         self.get_logger().info('Tight Right = %f' % tight_right_min)
         self.get_logger().info('Front = %f' % front_lidar_min)
