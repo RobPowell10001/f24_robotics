@@ -87,8 +87,8 @@ class WallFollow(Node):
         # self.get_logger().info('self position: {},{},{}'.format(posx,posy,posz));
         # similarly for twist message if you need
         self.pose_saved=position
-        self.positionLog.append(posx)
-        self.positionLog.append(posy)
+        self.positionLog.append(str(posx))
+        self.positionLog.append(str(posy))
         self.positionIt += 1
         self.get_logger().info("position log is: " + " ".join(self.positionLog))
 
