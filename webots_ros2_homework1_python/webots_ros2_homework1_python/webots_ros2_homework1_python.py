@@ -216,7 +216,7 @@ class WallFollow(Node):
             #door
             else:
                 self.cmd.linear.x = 0.05
-                self.cmd.angular.z = -0.2
+                self.cmd.angular.z = 0.2
                 self.publisher_.publish(self.cmd)
                 self.command = 'Sharp Right, trying to go through door'
                 self.get_logger().info("%s" % self.command)
