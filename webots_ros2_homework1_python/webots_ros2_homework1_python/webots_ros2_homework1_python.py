@@ -59,6 +59,7 @@ class WallFollow(Node):
         self.sameActionCounter = 0
         self.backwardstimex_x = 0
         self.sharpright = 0
+        self.stuck_count = 0
 
     #tracks the scanner data
     def listener_callback1(self, msg1):
