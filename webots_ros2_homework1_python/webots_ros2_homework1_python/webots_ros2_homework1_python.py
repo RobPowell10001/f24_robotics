@@ -60,6 +60,7 @@ class WallFollow(Node):
         self.backwardstimex_x = 0
         self.sharpright = 0
         self.stuck_count = 0
+        self.unstuck = False
 
     #tracks the scanner data
     def listener_callback1(self, msg1):
@@ -96,9 +97,11 @@ class WallFollow(Node):
             diffY = math.fabs(float(self.positionLog[-3]) - posy)
 
             # self.get_logger().info("x and y difs are %.3f and %.3f" % (diffX, diffY))
-            if diffX < 0.005 and diffY < 0.005:
+            if diffX < 0.01 and diffY < 0.01 and self.unstuck == 0:
                 self.stuck_count += 1
             else: self.stuck_count = 0
+            if self.stuck_count >= 250:
+                self.unstuck = 15
         
         #Example of how to identify a stall..need better tuned position deltas; wheels spin and example fast
         #diffX = math.fabs(self.pose_saved.x- position.x)
@@ -135,18 +138,28 @@ class WallFollow(Node):
         error = tight_right_min - target_distance
 
         # Front obstacle: stop or pivot left to avoid
-        if front_min < SAFE_STOP_DISTANCE:
+        if self.unstuck > 0:
+            if self.unstuck >= 10:
+                self.cmd.linear.x = 0.3
+                self.cmd.angular.z = 0.0
+                self.command = 'Unstuck backup'
+                self.wallhug = False
+            else:
+                self.cmd.linear.x = 0.0
+                self.cmd.angular.z = 0.6  # Pivot left
+                self.sharpright -= 1
+                self.command = 'Unstuck pivot'
+                self.wallhug = False
+        elif front_min < SAFE_STOP_DISTANCE:
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.5  # Pivot left
-            self.publisher_.publish(self.cmd)
             self.command = 'Turning left to avoid obstacle'
-            self.get_logger().info("%s" % self.command)
             self.wallhug = False
-            return
-        if self.sharpright > 0:
+        elif self.sharpright > 0:
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = -0.6  # Pivot right
             self.sharpright -= 1
+            self.command = 'Dropoff pivot'
             self.wallhug = False
         elif tight_right_min > 0.6 and front_min > 0.4:
             if self.wallhug == True:
