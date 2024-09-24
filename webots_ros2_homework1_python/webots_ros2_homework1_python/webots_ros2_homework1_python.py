@@ -100,7 +100,7 @@ class WallFollow(Node):
             if diffX < 0.01 and diffY < 0.01 and self.unstuck == 0:
                 self.stuck_count += 1
             else: self.stuck_count = 0
-            if self.stuck_count >= 250:
+            if self.stuck_count >= 500:
                 self.unstuck = 15
         
         #Example of how to identify a stall..need better tuned position deltas; wheels spin and example fast
