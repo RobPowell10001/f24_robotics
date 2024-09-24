@@ -58,6 +58,7 @@ class WallFollow(Node):
         self.positionIt = 0
         self.sameActionCounter = 0
         self.backwardstimex_x = 0
+        self.sharpright = 0
 
     #tracks the scanner data
     def listener_callback1(self, msg1):
@@ -116,13 +117,13 @@ class WallFollow(Node):
         front_min = min(self.scan_cleaned[LEFT_FRONT_INDEX:RIGHT_FRONT_INDEX])
         tight_right_min = min(self.scan_cleaned[TIGHT_RIGHT_TOP_INDEX:TIGHT_RIGHT_BOT_INDEX])
 
-        if self.sameActionCounter >= 25:
-            self.backwardstimex_x = 15
-            self.sameActionCounter = 0
+        # if self.sameActionCounter >= 25:
+        #     self.backwardstimex_x = 15
+        #     self.sameActionCounter = 0
 
         # Set a target distance to the wall (e.g., 0.5 meters)
         target_distance = 0.3
-        error = right_min - target_distance
+        error = tight_right_min - target_distance
 
         # Front obstacle: stop or pivot left to avoid
         if front_min < SAFE_STOP_DISTANCE:
@@ -131,27 +132,45 @@ class WallFollow(Node):
             self.publisher_.publish(self.cmd)
             self.command = 'Turning left to avoid obstacle'
             self.get_logger().info("%s" % self.command)
+            self.wallhug = False
             return
-        if tight_right_min > 0.6 and front_min > 0.3:
-            self.cmd.linear.x = 0.3
-            self.cmd.angular.z = 0.1
-            self.command = 'No wall seen, going forward'
+        if self.sharpright > 0:
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = -0.6  # Pivot right
+            self.sharpright -= 1
+            self.wallhug = False
+        elif tight_right_min > 0.6 and front_min > 0.3:
+            if self.wallhug == True:
+                self.sharpright = 5
+                self.cmd.linear.x = 0.15
+                self.cmd.angular.z = 0.0
+                self.command = 'Dropoff detected, turning right'
+                self.wallhug = False
+            else:
+                self.cmd.linear.x = 0.3
+                self.cmd.angular.z = 0.0
+                self.command = 'No wall seen, going forward'
+                self.wallhug = False
+            
         # Wall-following behavior (right-hand rule)
         elif error > 0.1:
             # Too far from the wall, turn right
             self.cmd.linear.x = 0.1
             self.cmd.angular.z = -0.3
             self.command = 'Turning right to follow wall'
+            self.wallhug = True
         elif error < -0.1:
             # Too close to the wall, turn left
             self.cmd.linear.x = 0.1
             self.cmd.angular.z = 0.3
             self.command = 'Turning left to avoid wall'
+            self.wallhug = True
         else:
             # Maintain distance, move forward
             self.cmd.linear.x = 0.3
             self.cmd.angular.z = 0.0
             self.command = 'Moving forward along the wall'
+            self.wallhug = True
 
         # Publish the command and log it
         self.publisher_.publish(self.cmd)
