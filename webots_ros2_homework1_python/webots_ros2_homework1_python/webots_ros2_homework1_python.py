@@ -140,7 +140,7 @@ class WallFollow(Node):
         # Front obstacle: stop or pivot left to avoid
         if self.unstuck > 0:
             if self.unstuck >= 10:
-                self.cmd.linear.x = 0.3
+                self.cmd.linear.x = -0.3
                 self.cmd.angular.z = 0.0
                 self.command = 'Unstuck backup'
                 self.wallhug = False
