@@ -135,6 +135,7 @@ class WallFollow(Node):
             self.command = 'Backwards!'
             self.get_logger().info("%s" % self.command)
             self.turtlebot_moving = True
+            self.backwardstimex_x -= 1
         elif front_lidar_min < SAFE_STOP_DISTANCE:
             if self.turtlebot_moving == True:
                 self.cmd.linear.x = 0.0 
