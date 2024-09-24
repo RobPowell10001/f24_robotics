@@ -151,11 +151,14 @@ class WallFollow(Node):
                 self.cmd.angular.z = 0.0
                 self.command = 'No wall seen, going forward'
                 self.wallhug = False
-            
+        #too close to wall in front, slam them brakes until its better
+        elif front_min < tight_right_min:
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = 0.5  # Pivot left
         # Wall-following behavior (right-hand rule)
         elif error > 0.1:
             # Too far from the wall, turn right
-            self.cmd.linear.x = 0.1
+            self.cmd.linear.x = 0.3
             self.cmd.angular.z = -0.3
             self.command = 'Turning right to follow wall'
             self.wallhug = True
