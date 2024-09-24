@@ -123,16 +123,24 @@ class WallFollow(Node):
         #self.get_logger().info('front scan slice: "%s"'%  min(front_lidar_samples))
         #self.get_logger().info('right scan slice: "%s"'%  min(right_lidar_samples))
 
-        if self.sameActionCounter >= 10 and self.wallhug == True:
+        if self.sameActionCounter >= 30 and self.wallhug == True:
             self.wallhug = False
-        if self.sameActionCounter >= 10 and self.wallhug == False:
-            self.backwardstimex_x = 5
+        if self.sameActionCounter >= 30 and self.wallhug == False:
+            self.backwardstimex_x = 10
         #if we're too close, just full stop, if stopped turn left
-        if self.backwardstimex_x > 0:
+        if self.backwardstimex_x > 5:
             self.cmd.linear.x = -0.3
             self.cmd.angular.z = 0.00
             self.publisher_.publish(self.cmd)
             self.command = 'Backwards!'
+            self.get_logger().info("%s" % self.command)
+            self.turtlebot_moving = True
+            self.backwardstimex_x -= 1
+        elif self.backwardstimex_x > 0:
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = 0.3
+            self.publisher_.publish(self.cmd)
+            self.command = 'Backward Pivot!'
             self.get_logger().info("%s" % self.command)
             self.turtlebot_moving = True
             self.backwardstimex_x -= 1
