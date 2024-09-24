@@ -113,6 +113,9 @@ class WallFollow(Node):
         front_min = min(self.scan_cleaned[LEFT_FRONT_INDEX:RIGHT_FRONT_INDEX])
         tight_right_min = min(self.scan_cleaned[TIGHT_RIGHT_TOP_INDEX:TIGHT_RIGHT_BOT_INDEX])
 
+        if self.sameActionCounter >= 25:
+            self.backwardstimex_x = 15
+
         # Stop and pivot logic if stuck or too close
         if front_min < SAFE_STOP_DISTANCE:
             self.cmd.linear.x = 0.0
@@ -124,10 +127,10 @@ class WallFollow(Node):
 
         # If we're backing up, continue doing so until finished
         if self.backwardstimex_x > 0:
-            self.cmd.linear.x = -0.3 if self.backwardstimex_x > 5 else 0.0
-            self.cmd.angular.z = 0.3 if self.backwardstimex_x <= 5 else 0.0
+            self.cmd.linear.x = -0.3 if self.backwardstimex_x > 10 else 0.0
+            self.cmd.angular.z = 0.3 if self.backwardstimex_x <= 10 else 0.0
             self.publisher_.publish(self.cmd)
-            self.command = 'Backing up' if self.backwardstimex_x > 5 else 'Pivoting backward'
+            self.command = 'Backing up' if self.backwardstimex_x > 10 else 'Pivoting backward'
             self.get_logger().info("%s" % self.command)
             self.turtlebot_moving = True
             self.backwardstimex_x -= 1
