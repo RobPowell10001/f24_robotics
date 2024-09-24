@@ -87,20 +87,18 @@ class WallFollow(Node):
         # self.get_logger().info('self position: {},{},{}'.format(posx,posy,posz));
         # similarly for twist message if you need
         self.pose_saved=position
-        if (self.positionIt % 10 == 0):
-            self.positionLog.append(str(posx))
-            self.positionLog.append(str(posy))
-            self.positionIt += 1
-            # self.get_logger().info("position log is: " + " ".join(self.positionLog))
+        self.positionLog.append(str(posx))
+        self.positionLog.append(str(posy))
+        # self.get_logger().info("position log is: " + " ".join(self.positionLog))
 
-            if len(self.positionLog) > 4:
-                diffX = math.fabs(float(self.positionLog[-4]) - posx)
-                diffY = math.fabs(float(self.positionLog[-3]) - posy)
+        if len(self.positionLog) > 4:
+            diffX = math.fabs(float(self.positionLog[-4]) - posx)
+            diffY = math.fabs(float(self.positionLog[-3]) - posy)
 
-                self.get_logger().info("x and y difs are %.3f and %.3f" % (diffX, diffY))
-                if diffX < 0.1 and diffY < 1:
-                    self.stuck_count += 1
-                else: self.stuck_count = 0
+            self.get_logger().info("x and y difs are %.3f and %.3f" % (diffX, diffY))
+            if diffX < 0.1 and diffY < 1:
+                self.stuck_count += 1
+            else: self.stuck_count = 0
         
         #Example of how to identify a stall..need better tuned position deltas; wheels spin and example fast
         #diffX = math.fabs(self.pose_saved.x- position.x)
