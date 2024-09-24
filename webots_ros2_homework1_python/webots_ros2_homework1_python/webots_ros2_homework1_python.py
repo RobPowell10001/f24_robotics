@@ -92,15 +92,15 @@ class WallFollow(Node):
         self.positionLog.append(str(posy))
         # self.get_logger().info("position log is: " + " ".join(self.positionLog))
 
-        if len(self.positionLog) > 20:
-            diffX = math.fabs(float(self.positionLog[-20]) - posx)
-            diffY = math.fabs(float(self.positionLog[-19]) - posy)
+        if len(self.positionLog) > 500:
+            diffX = math.fabs(float(self.positionLog[-500]) - posx)
+            diffY = math.fabs(float(self.positionLog[-499]) - posy)
 
             # self.get_logger().info("x and y difs are %.3f and %.3f" % (diffX, diffY))
-            if diffX < 0.03 and diffY < 0.03 and self.unstuck == 0:
+            if diffX < 0.1 and diffY < 0.1 and self.unstuck == 0:
                 self.stuck_count += 1
             else: self.stuck_count = 0
-            if self.stuck_count >= 500:
+            if self.stuck_count >= 50:
                 self.unstuck = 15
         
         #Example of how to identify a stall..need better tuned position deltas; wheels spin and example fast
