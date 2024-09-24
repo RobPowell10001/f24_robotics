@@ -121,7 +121,7 @@ class WallFollow(Node):
             self.sameActionCounter = 0
 
         # Set a target distance to the wall (e.g., 0.5 meters)
-        target_distance = 0.5
+        target_distance = 0.3
         error = right_min - target_distance
 
         # Front obstacle: stop or pivot left to avoid
@@ -136,12 +136,12 @@ class WallFollow(Node):
         # Wall-following behavior (right-hand rule)
         if error > 0.1:
             # Too far from the wall, turn right
-            self.cmd.linear.x = 0.2
+            self.cmd.linear.x = 0.1
             self.cmd.angular.z = -0.3
             self.command = 'Turning right to follow wall'
         elif error < -0.1:
             # Too close to the wall, turn left
-            self.cmd.linear.x = 0.2
+            self.cmd.linear.x = 0.1
             self.cmd.angular.z = 0.3
             self.command = 'Turning left to avoid wall'
         else:
