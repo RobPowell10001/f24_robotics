@@ -96,7 +96,7 @@ class WallFollow(Node):
             diffY = math.fabs(float(self.positionLog[-3]) - posy)
 
             # self.get_logger().info("x and y difs are %.3f and %.3f" % (diffX, diffY))
-            if diffX < 0.1 and diffY < 1:
+            if diffX < 0.1 and diffY < 0.1:
                 self.stuck_count += 1
             else: self.stuck_count = 0
         
