@@ -106,6 +106,9 @@ class WallFollow(Node):
         if not self.scan_cleaned:
             self.turtlebot_moving = False
             return
+        
+        #remember last action
+        self.prevcommand = self.command 
 
         # Get the minimum distance in key directions
         left_min = min(self.scan_cleaned[LEFT_SIDE_INDEX:LEFT_FRONT_INDEX])
