@@ -90,7 +90,7 @@ class WallFollow(Node):
             self.positionLog.append(posx)
             self.positionLog.append(posy)
             self.positionIt += 1
-            if math.fabs(self.positionLog[-4] - posx) < 0.1 and math.fabs(self.positionLog[-3] - posy) < 0.1:
+            if len(self.positionLog) > 4 and math.fabs(self.positionLog[-4] - posx) < 0.1 and math.fabs(self.positionLog[-3] - posy) < 0.1:
                 self.stuck_count += 1
             else: self.stuck_count = 0
         
