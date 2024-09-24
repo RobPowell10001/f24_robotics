@@ -93,8 +93,8 @@ class WallFollow(Node):
         self.get_logger().info("position log is: " + " ".join(self.positionLog))
 
         if len(self.positionLog) > 4:
-            diffX = math.fabs(self.positionLog[-4] - posx)
-            diffY = math.fabs(self.positionLog[-3] - posy)
+            diffX = math.fabs(float(self.positionLog[-4]) - posx)
+            diffY = math.fabs(float(self.positionLog[-3]) - posy)
 
             self.get_logger().info("x and y difs are %f and %f" % diffX, diffY)
             if diffX < 0.1 and diffY < 1:
