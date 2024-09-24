@@ -132,9 +132,12 @@ class WallFollow(Node):
             self.command = 'Turning left to avoid obstacle'
             self.get_logger().info("%s" % self.command)
             return
-
+        if right_min > 1.5 and front_min > 0.3:
+            self.cmd.linear.x = 0.3
+            self.cmd.angular.z = 0.0
+            self.command = 'No wall seen, going forward'
         # Wall-following behavior (right-hand rule)
-        if error > 0.1:
+        elif error > 0.1:
             # Too far from the wall, turn right
             self.cmd.linear.x = 0.1
             self.cmd.angular.z = -0.3
