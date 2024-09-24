@@ -13,7 +13,7 @@ import math
 
 
 LINEAR_VEL = 0.22
-STOP_DISTANCE = 0.1
+STOP_DISTANCE = 0.2
 LIDAR_ERROR = 0.05
 LIDAR_AVOID_DISTANCE = 0.35
 SAFE_STOP_DISTANCE = STOP_DISTANCE + LIDAR_ERROR
@@ -139,7 +139,7 @@ class WallFollow(Node):
             self.cmd.angular.z = -0.6  # Pivot right
             self.sharpright -= 1
             self.wallhug = False
-        elif tight_right_min > 0.6 and front_min > 0.3:
+        elif tight_right_min > 0.6 and front_min > 0.4:
             if self.wallhug == True:
                 self.sharpright = 5
                 self.cmd.linear.x = 0.15
