@@ -126,7 +126,7 @@ class WallFollow(Node):
         if self.sameActionCounter >= 10 and self.wallhug == True:
             self.wallhug = False
         if self.sameActionCounter >= 10 and self.wallhug == False:
-            self.backwardstimex_x = 10
+            self.backwardstimex_x = 5
         #if we're too close, just full stop, if stopped turn left
         if self.backwardstimex_x > 0:
             self.cmd.linear.x = -0.3
