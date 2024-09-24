@@ -181,7 +181,7 @@ def timer_callback(self):
     self.get_logger().info('Repeats = %f' % self.sameActionCounter)
     self.get_logger().info('Wallhug = %r' % self.wallhug)
     self.get_logger().info('Tight Right = %f' % tight_right_min)
-    self.get_logger().info('Front = %f' % front_lidar_min)
+    self.get_logger().info('Front = %f' % front_min)
     self.get_logger().info('I receive: "%s"' %
                             str(self.odom_data))
     if self.stall == True:
