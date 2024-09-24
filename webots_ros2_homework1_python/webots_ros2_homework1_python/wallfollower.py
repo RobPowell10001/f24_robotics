@@ -58,6 +58,7 @@ class WallFollow(Node):
         self.positionIt = 0
         self.sameActionCounter = 0
         self.backwardstimex_x = 0
+        self.stuck_count = 0
 
     #tracks the scanner data
     def listener_callback1(self, msg1):
@@ -89,6 +90,9 @@ class WallFollow(Node):
             self.positionLog.append(posx)
             self.positionLog.append(posy)
             self.positionIt += 1
+            if math.fabs(self.positionLog[-4] - posx) < 0.1 and math.fabs(self.positionLog[-3] - posy) < 0.1:
+                self.stuck_count += 1
+            else: self.stuck_count = 0
         
         #Example of how to identify a stall..need better tuned position deltas; wheels spin and example fast
         #diffX = math.fabs(self.pose_saved.x- position.x)
@@ -229,14 +233,15 @@ class WallFollow(Node):
             self.sameActionCounter = 0      
         
         # self.get_logger().info('%s' % self.command)
-        self.get_logger().info('Repeats = %f' % self.sameActionCounter)
+        self.get_logger().info('Stuck Count = %f' % self.stuck_count)
+        # self.get_logger().info('Repeats = %f' % self.sameActionCounter)
         self.get_logger().info('Wallhug = %r' % self.wallhug)
         self.get_logger().info('Tight Right = %f' % tight_right_min)
         self.get_logger().info('Front = %f' % front_lidar_min)
-        self.get_logger().info('I receive: "%s"' %
-                               str(self.odom_data))
-        if self.stall == True:
-           self.get_logger().info('Stall reported')
+        # self.get_logger().info('I receive: "%s"' %
+        #                        str(self.odom_data))
+        # if self.stall == True:
+        #    self.get_logger().info('Stall reported')
         
         # Display the message on the console
         self.get_logger().info('Publishing: "%s"' % self.cmd)
