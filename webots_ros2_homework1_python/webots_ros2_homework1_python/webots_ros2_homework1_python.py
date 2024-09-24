@@ -118,6 +118,7 @@ class WallFollow(Node):
 
         if self.sameActionCounter >= 25:
             self.backwardstimex_x = 15
+            self.sameActionCounter = 0
 
         # Stop and pivot logic if stuck or too close
         if front_min < SAFE_STOP_DISTANCE:
