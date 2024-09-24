@@ -150,6 +150,7 @@ class WallFollow(Node):
                 self.sharpright -= 1
                 self.command = 'Unstuck pivot'
                 self.wallhug = False
+            self.unstuck -= 1
         elif front_min < SAFE_STOP_DISTANCE:
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.5  # Pivot left
