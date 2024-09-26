@@ -17,3 +17,9 @@ colcon build
 source install/setup.bash
 ros2 run webots_ros2_homework1_python webots_ros2_homework1_python
 
+
+### Pos Tracking
+- After starting world, before controller:
+	- `ros2 topic echo /odom --field pose.pose.position > ~/results/trialname.csv`
+	- format kinda messed up, just convert to csv and find a way to display
+ros2 topic echo /odom --field pose.pose.position > ~/results/.csv
