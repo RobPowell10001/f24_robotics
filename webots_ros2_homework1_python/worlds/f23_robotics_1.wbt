@@ -116,7 +116,7 @@ TexturedBackgroundLight {
 #  ]
 #}
 TurtleBot3Burger {
-  translation 0.96 .492 .05
+  translation 7.6 3.5 .05
   rotation 0 0 1 -1.57
   translation 7.46 3.5 .05
   rotation 0 0 0 0
